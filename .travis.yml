@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: RrwKUCnPLBDC76v0J50H4/QP2MiT+DVRf7yBtytlzIb4AFJKI2dK9XngKsMK7xJhw7R7eycl2vWFeuZ8+obcRBZocSrLjiKYiSXqJt/7ZwIkJqyoTQZ/dLMSBJ558M5wJeWNgV3YMQs/ID2Qmu7a724GdboWv81y+7GpwdvsWINzr8MynZuI3LxlzfB5+6iMv06KPaMgJgVIpPs7EQ/KJafyGdFiSq5KanoGjUoJsKzaPdxmC8xlI2LCyu1sXa7Jyaj/KBvVkK2CE7dfJGVyVEiBVXDRuVuSdHwc07+aK9+43FG+/mRZcn+MZ6dgIhVIFhDT0Sqq7r3YxmskfnypDYUzjOiMLpEwO3FK1YJwbE8bbpMeeW3ZPy7V46oSXp2csYa2sCl3/Gm4cc/rW/btzYVfFvs/0zLHD7GZ5la1mwVzmyz16PBGIEEzm1RR7P7XAGHht6N+YIz+k6/43J1CqffWxsjA9SwyFNrgOvYmwT1WdYv7JhtZ0a+Nwy1m507lK8dX5Z0APnqFVEOWZPqKG3qGG/GnkYcBRDszQi+8xYu1/uFlsy9aBaekYBlO6j+Abs0BAn5o8HK8K6JS5rJ9zfhzjwu2uiaGfh2ZszvmRHOK5yazZXy+ExV9pkhk5hUHsRIgnBinNtOGtSr8cPNgNPmcFmSJ9c7etOnTuIsqdaQ=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Memoirs-of-Jacques-Casanova-de-Seingalt-1725-1798.-Volume-09--the-False-Nun_2959
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
